@@ -9,13 +9,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest] # Test both Linux and Mac
+        os: [ubuntu-latest, macos-latest]
 
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Install Conan
-      run: pip3 install conan && conan profile detect
+      run: |
+        pip3 install conan
+        conan profile detect --force
 
     - name: Install CMake & Ninja (macOS)
       if: runner.os == 'macOS'
@@ -23,20 +25,32 @@ jobs:
 
     - name: Install CMake & Ninja (Linux)
       if: runner.os == 'Linux'
-      run: sudo apt-get install -y cmake ninja-build
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake ninja-build
+
+    - name: Create Build Environment
+      run: mkdir -p build
 
     - name: Install Dependencies
-      run: conan install . --output-folder=build --build=missing -s compiler.cppstd=20
+      run: |
+        conan install . --output-folder=build --build=missing \
+        -s compiler.cppstd=20
 
     - name: Configure CMake
       run: |
         cmake -S . -B build \
-        -DCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake \
+        -G Ninja \
+        -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake \
         -DCMAKE_BUILD_TYPE=Debug \
         -DENABLE_SANITIZER_ADDRESS=ON
+      # Note: Conan's toolchain file location can vary; 
+      # if it fails, we check if it's in build/ or build/generators/
 
     - name: Build
       run: cmake --build build
 
     - name: Run Tests
-      run: cd build && ./unit_tests
+      run: |
+        cd build
+        ./unit_tests
