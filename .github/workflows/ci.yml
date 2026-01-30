@@ -34,7 +34,7 @@ jobs:
 
     - name: Install Dependencies
       run: |
-        conan install . --output-folder=build --build=missing \
+        conan install . --build=missing \
         -s compiler.cppstd=20
 
     - name: Configure CMake
@@ -42,7 +42,6 @@ jobs:
         cmake -S . -B build \
         -G Ninja \
         -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake \
-        -DCMAKE_BUILD_TYPE=Debug \
         -DENABLE_SANITIZER_ADDRESS=ON
       # Note: Conan's toolchain file location can vary; 
       # if it fails, we check if it's in build/ or build/generators/

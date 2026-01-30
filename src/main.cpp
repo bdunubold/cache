@@ -23,7 +23,7 @@ int main() {
 
 commands to run : 
 
-conan install . --output-folder=build --build=missing -s build_type=Debug -s compiler.cppstd=20
+conan install . --build=missing -s compiler.cppstd=20
 
 cmake -S . -B build \\n    -DCMAKE_TOOLCHAIN_FILE=build/build/Debug/generators/conan_toolchain.cmake \\n    -DCMAKE_BUILD_TYPE=Debug
 
