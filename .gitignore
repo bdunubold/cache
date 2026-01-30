@@ -1,0 +1,26 @@
+# --- OS Specific ---
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# --- Build Directories ---
+# We ignore the entire build folder because CMake can recreate it
+build/
+bin/
+obj/
+
+# --- Conan Specific ---
+# Conan generates these files to help CMake find libraries
+conanfile.py.cmake
+conan_toolchain.cmake
+conan.lock
+
+# --- IDEs and Editors ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Logs and Sanitizers ---
+*.log
+asan_report.*

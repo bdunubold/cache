@@ -1,0 +1,42 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build-and-test:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest] # Test both Linux and Mac
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install Conan
+      run: pip3 install conan && conan profile detect
+
+    - name: Install CMake & Ninja (macOS)
+      if: runner.os == 'macOS'
+      run: brew install cmake ninja
+
+    - name: Install CMake & Ninja (Linux)
+      if: runner.os == 'Linux'
+      run: sudo apt-get install -y cmake ninja-build
+
+    - name: Install Dependencies
+      run: conan install . --output-folder=build --build=missing -s compiler.cppstd=20
+
+    - name: Configure CMake
+      run: |
+        cmake -S . -B build \
+        -DCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake \
+        -DCMAKE_BUILD_TYPE=Debug \
+        -DENABLE_SANITIZER_ADDRESS=ON
+
+    - name: Build
+      run: cmake --build build
+
+    - name: Run Tests
+      run: cd build && ./unit_tests
